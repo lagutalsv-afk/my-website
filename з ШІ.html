@@ -1,0 +1,340 @@
+<!-- Chosen Palette: Clean Professional (Indigo/Gray) -->
+<!-- Application Structure Plan: Three main sections (Transition, Keyframe, Gemini AI Helper) presented in a responsive layout. -->
+<!-- Visualization & Content Choices: The main content is instructional text and interactive target boxes. Goal: Organize/Inform. Method: Styled HTML/CSS boxes. Interaction: Button clicks to toggle CSS classes/animations and API call for educational assistance. Library/Method: Vanilla JS, Tailwind, and Gemini API. NO SVG/Mermaid. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Інтерактивні Завдання CSS Анімації</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        // Обов'язкові імпорти Firebase для аутентифікації та ініціалізації
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Глобальні змінні, надані Canvas
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Ініціалізація Firebase
+        let app, db, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            // Автентифікація
+            if (initialAuthToken) {
+                signInWithCustomToken(auth, initialAuthToken).catch(e => console.error("Firebase custom token sign in failed:", e));
+            } else {
+                signInAnonymously(auth).catch(e => console.error("Firebase anonymous sign in failed:", e));
+            }
+        } catch (e) {
+            console.error("Firebase initialization failed. Proceeding without Firebase functionality.", e);
+        }
+
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light Gray */
+        }
+        /* Базовий стиль для цільових елементів */
+        .target-box {
+            width: 100px;
+            height: 100px;
+            background-color: #3b82f6; /* Blue 500 */
+            border-radius: 8px;
+            margin: 2rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ----- CSS TRANSITION ДЕМОНСТРАЦІЯ ----- */
+        .box-transition-base {
+            transition: all 0.5s ease-in-out; /* Плавний перехід */
+            transform: scale(1) rotate(0deg);
+        }
+        .box-transition-hover {
+            background-color: #ef4444; /* Red 500 */
+            transform: scale(1.2) rotate(5deg);
+            cursor: pointer;
+        }
+        /* Стиль для відключення transition (демонстрація різниці) */
+        .no-transition {
+            transition: none !important;
+        }
+
+        /* ----- CSS KEYFRAMES ДЕМОНСТРАЦІЯ ----- */
+        @keyframes pulse-animation {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.7; background-color: #10b981; } /* Green 500 */
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes rotate-slow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Класи для застосування анімацій */
+        .animate-pulse-effect {
+            animation: pulse-animation 2s infinite alternate;
+        }
+        .animate-rotate-effect {
+            animation: rotate-slow 5s infinite linear;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-indigo-700 text-white p-6 shadow-lg">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold">Лабораторія CSS Анімацій</h1>
+            <p class="text-indigo-200">Перевірте, як працюють `transition` та `@keyframes` на практиці.</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+            
+            <!-- Завдання 1: Transition (Плавні переходи) -->
+            <section class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-800">Завдання 1: Плавний перехід (`transition`)</h2>
+                <p class="mb-4 text-gray-700">Наше завдання — зробити зміну стилів елемента плавною, а не миттєвою. Наведіть курсор на синій квадрат.</p>
+
+                <!-- Демонстраційний елемент -->
+                <div id="targetTransition" class="target-box box-transition-base">
+                    Наведи!
+                </div>
+
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 mt-6">
+                    <h3 class="font-bold text-gray-700 mb-2">Контроль Transition:</h3>
+                    <p class="text-sm italic text-gray-600 mb-3">Ви маєте написати CSS для `.box-transition-base`. Клікніть, щоб побачити ефект.</p>
+                    
+                    <button id="toggleTransition" class="px-4 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition duration-300 shadow-md">
+                        [ВКЛ] `transition: 0.5s`
+                    </button>
+                    <button id="toggleTransitionOff" class="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300 shadow-md hidden">
+                        [ВИМК] `transition: none`
+                    </button>
+                </div>
+            </section>
+            
+            <!-- Завдання 2: Keyframes (Ключові кадри) -->
+            <section class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-800">Завдання 2: Складна анімація (`@keyframes`)</h2>
+                <p class="mb-4 text-gray-700">Для створення повторюваного руху (пульсації) потрібні ключові кадри. Клікніть, щоб запустити анімацію!</p>
+
+                <!-- Демонстраційний елемент -->
+                <div id="targetKeyframes" class="target-box bg-indigo-500">
+                    Анімуй!
+                </div>
+
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 mt-6">
+                    <h3 class="font-bold text-gray-700 mb-2">Контроль Keyframes:</h3>
+                    <p class="text-sm italic text-gray-600 mb-3">Ви маєте оголосити `@keyframes` та застосувати їх за допомогою `animation`.</p>
+                    
+                    <button id="togglePulse" class="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition duration-300 shadow-md">
+                        Запустити "Пульс"
+                    </button>
+                    <button id="toggleRotate" class="px-4 py-2 bg-indigo-500 text-white font-semibold rounded-lg hover:bg-indigo-600 transition duration-300 shadow-md">
+                        Запустити "Обертання"
+                    </button>
+                    <button id="stopAnimation" class="px-4 py-2 bg-gray-400 text-white font-semibold rounded-lg hover:bg-gray-500 transition duration-300 shadow-md">
+                        Зупинити
+                    </button>
+                </div>
+            </section>
+            
+            <!-- НОВИЙ РОЗДІЛ: Gemini AI Порадник -->
+            <section class="bg-indigo-50 p-6 rounded-xl shadow-xl border-2 border-indigo-200 col-span-1 lg:col-span-2 xl:col-span-1">
+                <h2 class="text-2xl font-semibold mb-4 text-indigo-800">✨ CSS Анімаційний Порадник (Gemini AI)</h2>
+                <p class="mb-4 text-gray-700">Введіть будь-яку властивість CSS-анімації чи концепцію (`ease-in-out`, `animation-delay`, `transform`, `cubic-bezier`) та отримайте детальні пояснення та приклади.</p>
+
+                <div class="flex flex-col space-y-3">
+                    <input type="text" id="geminiQuery" placeholder="Введіть властивість, наприклад: animation-fill-mode" class="p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                    
+                    <button id="runGemini" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 shadow-lg flex items-center justify-center space-x-2">
+                        <span>Отримати пояснення ✨</span>
+                    </button>
+                </div>
+                
+                <div id="geminiOutput" class="mt-6 p-4 bg-white rounded-lg border border-indigo-300 min-h-[100px] text-sm text-gray-800 whitespace-pre-wrap">
+                    Тут з'явиться пояснення від штучного інтелекту.
+                </div>
+                <div id="loadingIndicator" class="hidden mt-4 text-center text-indigo-600">
+                    <div class="animate-spin inline-block w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full"></div>
+                    <p class="mt-2">Завантаження...</p>
+                </div>
+            </section>
+            
+        </div>
+        
+    </main>
+
+    <footer class="text-center mt-12 py-4 text-gray-500 text-sm border-t border-gray-200">
+        <p>Інтерактивні завдання для уроку "Анімаційні ефекти в CSS".</p>
+    </footer>
+
+    <script>
+        // Існуюча логіка для Завдань 1 та 2
+        const targetTransition = document.getElementById('targetTransition');
+        const targetKeyframes = document.getElementById('targetKeyframes');
+        const toggleTransitionBtn = document.getElementById('toggleTransition');
+        const toggleTransitionOffBtn = document.getElementById('toggleTransitionOff');
+        const togglePulseBtn = document.getElementById('togglePulse');
+        const toggleRotateBtn = document.getElementById('toggleRotate');
+        const stopAnimationBtn = document.getElementById('stopAnimation');
+
+        // Ініціалізація та обробники для Завдання 1 (Transition)
+        targetTransition.addEventListener('mouseenter', () => {
+            if (!targetTransition.classList.contains('no-transition')) {
+                targetTransition.classList.add('box-transition-hover');
+            }
+        });
+        targetTransition.addEventListener('mouseleave', () => {
+            targetTransition.classList.remove('box-transition-hover');
+        });
+        toggleTransitionBtn.addEventListener('click', () => {
+            targetTransition.classList.remove('no-transition');
+            toggleTransitionBtn.classList.add('hidden');
+            toggleTransitionOffBtn.classList.remove('hidden');
+        });
+        toggleTransitionOffBtn.addEventListener('click', () => {
+            targetTransition.classList.add('no-transition');
+            toggleTransitionOffBtn.classList.add('hidden');
+            toggleTransitionBtn.classList.remove('hidden');
+        });
+        toggleTransitionBtn.click(); // Ініціалізація
+
+        // Ініціалізація та обробники для Завдання 2 (Keyframes)
+        function removeAllAnimations() {
+            targetKeyframes.classList.remove('animate-pulse-effect', 'animate-rotate-effect');
+        }
+        togglePulseBtn.addEventListener('click', () => {
+            removeAllAnimations();
+            targetKeyframes.classList.add('animate-pulse-effect');
+            targetKeyframes.textContent = 'Пульсує...';
+        });
+        toggleRotateBtn.addEventListener('click', () => {
+            removeAllAnimations();
+            targetKeyframes.classList.add('animate-rotate-effect');
+            targetKeyframes.textContent = 'Обертається!';
+        });
+        stopAnimationBtn.addEventListener('click', () => {
+            removeAllAnimations();
+            targetKeyframes.textContent = 'Анімуй!';
+            targetKeyframes.style.transform = 'none'; 
+            targetKeyframes.style.backgroundColor = '#6366f1'; 
+        });
+        targetKeyframes.style.backgroundColor = '#6366f1'; 
+        
+
+        // ===============================================
+        // НОВА ЛОГІКА: GEMINI AI ПОРАДНИК
+        // ===============================================
+
+        const geminiQueryInput = document.getElementById('geminiQuery');
+        const runGeminiBtn = document.getElementById('runGemini');
+        const geminiOutputDiv = document.getElementById('geminiOutput');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        // Обробник запуску AI
+        runGeminiBtn.addEventListener('click', callGeminiApi);
+        geminiQueryInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                callGeminiApi();
+            }
+        });
+
+        // Функція для виклику Gemini API з експоненційною затримкою (Exponential Backoff)
+        async function callGeminiApi() {
+            const userQuery = geminiQueryInput.value.trim();
+            if (!userQuery) {
+                geminiOutputDiv.textContent = 'Будь ласка, введіть властивість або концепцію для пояснення.';
+                return;
+            }
+
+            // Налаштування UI на стан завантаження
+            geminiOutputDiv.textContent = '';
+            loadingIndicator.classList.remove('hidden');
+            runGeminiBtn.disabled = true;
+
+            const systemPrompt = "Ти — досвідчений викладач фронтенду та експерт з CSS. Твоя місія — надавати вичерпні, але прості пояснення для студентів, які вивчають CSS анімації та переходи. Відповідай українською мовою. Якщо користувач питає про властивість або концепцію (наприклад, 'ease-in-out', 'animation-delay', 'transform'), поясни її, наведи короткий приклад коду в форматі CSS/HTML та підкресли, де її найкраще використовувати. Завжди використовуй навчальний, заохочувальний тон.";
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            let response = null;
+            const maxRetries = 5;
+            let delay = 1000;
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        break; // Успіх, виходимо з циклу
+                    } else if (response.status === 429) {
+                        // Too Many Requests - чекаємо і повторюємо
+                        if (i < maxRetries - 1) {
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2; // Експоненційна затримка
+                        } else {
+                            throw new Error(`API failed after ${maxRetries} retries with status: ${response.status}`);
+                        }
+                    } else {
+                        throw new Error(`API failed with status: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error("Fetch error or retries exceeded:", error);
+                    if (i === maxRetries - 1) {
+                        geminiOutputDiv.textContent = `Помилка: Не вдалося отримати відповідь від AI після кількох спроб. (${error.message})`;
+                        loadingIndicator.classList.add('hidden');
+                        runGeminiBtn.disabled = false;
+                        return;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+
+            // Обробка успішної відповіді
+            try {
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Вибачте, не вдалося згенерувати відповідь. Спробуйте інший запит.";
+                
+                // Відображення результату
+                geminiOutputDiv.textContent = text;
+            } catch (e) {
+                console.error("Error processing Gemini response:", e);
+                geminiOutputDiv.textContent = "Помилка обробки відповіді AI. Перевірте консоль для деталей.";
+            }
+
+            // Повернення UI до нормального стану
+            loadingIndicator.classList.add('hidden');
+            runGeminiBtn.disabled = false;
+        }
+
+    </script>
+</body>
+</html>
